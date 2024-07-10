@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[ ]:
 
 
 import pandas as pd
@@ -11,7 +11,7 @@ import os.path
 from os import path
 
 
-# In[3]:
+# In[ ]:
 
 
 #reads in the training data and data of cards that need a grade assigned
@@ -47,7 +47,14 @@ else:
 
 
 
-# In[4]:
+# In[ ]:
+
+
+print('Number of NaNs filled:', predict_data.isna().sum().sum())
+predict_data = predict_data.fillna(0)
+
+
+# In[ ]:
 
 
 # providing guidence on what percents allow for a X maximum grade. 
@@ -57,6 +64,13 @@ else:
 def percent_to_num(df_col):
     for r in df_col.index:
         num = df_col[r]
+        if type(num) == str:
+            try:
+                num.astype(float)
+            except:
+                print('Non Number Values present. Check self graded data sheet')
+                print('Problem with Value:',num)
+                print('Row:', r, 'Column:', df_col.name)
         if num >= .45 and num <= .55:
             df_col[r] = 10
         elif num >= .4 and num <= .6:
@@ -75,7 +89,7 @@ def percent_to_num(df_col):
             df_col[r] = 1
 
 
-# In[5]:
+# In[ ]:
 
 
 #list of columns that need the function performed on. Should be 4 columns that contain the percents
@@ -86,14 +100,14 @@ for df in range(len(list_to_change)):
     percent_to_num(list_to_change[df])
 
 
-# In[6]:
+# In[ ]:
 
 
 # run to check for successful conversion
 #predict_data.tb_split_percent
 
 
-# In[7]:
+# In[ ]:
 
 
 # creates test data and removes the rows from the training data
@@ -105,7 +119,7 @@ test_data = train_data[train_data['ID'].isin(test_rows)]
 train_data = train_data[~train_data['ID'].isin(test_rows)]
 
 
-# In[8]:
+# In[ ]:
 
 
 #removes columns that are for labeling like 'Set', 'Card Number' etc.
@@ -114,7 +128,7 @@ train_values_data = train_data[train_columns]
 test_values_data = test_data[train_columns]
 
 
-# In[9]:
+# In[ ]:
 
 
 #establish data and desired trait to train for
@@ -124,7 +138,7 @@ y_train = train_data['Grade']
 y_test = test_data['Grade']
 
 
-# In[10]:
+# In[ ]:
 
 
 # creates dataframe with the same dimensions
@@ -132,14 +146,14 @@ pred_columns = predict_data.columns[11:]
 pred_data = predict_data[pred_columns]
 
 
-# In[11]:
+# In[ ]:
 
 
 #create df that houses a bootstraped training values
 boot_df = pd.DataFrame()
 
 
-# In[12]:
+# In[ ]:
 
 
 # import modeler
@@ -170,7 +184,7 @@ from sklearn.ensemble import RandomForestRegressor
 # print(f"Best score: {grid_search.best_score_}")
 # 
 
-# In[13]:
+# In[ ]:
 
 
 # uses latest model suggestions to run data
@@ -180,7 +194,7 @@ trained_model = model.fit(x_train, y_train)
 predict_data['Grade'] = trained_model.predict(pred_data)
 
 
-# In[14]:
+# In[ ]:
 
 
 # for the predicted grades, if the 
@@ -195,7 +209,7 @@ for g in range(len(predict_data)):
 predict_data.loc[:,'Grade'] = predict_data['Grade'].round(1)
 
 
-# In[15]:
+# In[ ]:
 
 
 #save data to CSV
